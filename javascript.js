@@ -31,20 +31,20 @@ class Ball {
 
     changeDirectionX() {
         this.speedX = 0 - this.speedX;
-        this.x -= (this.speedX*10)
+        // this.x -= (this.speedX*100)
     }
 
     changeDirectionY() {
         this.speedY = 0 - this.speedY;
-        this.y -= (this.speedY*10)
+        // this.y -= (this.speedY*100)
     }
     
     updatePos() {
         this.x -= this.speedX;
         this.y -= this.speedY;
-        this.topSide = [this.x, this.y+this.radius];
+        this.topSide = [this.x, this.y-this.radius];
         this.leftSide = [this.x-this.radius, this.y];
-        this.bottomSide = [this.x, this.y-this.radius];
+        this.bottomSide = [this.x, this.y+this.radius];
         this.rightSide = [this.x+this.radius, this.y];
         if (this.x <= 10) {
             this.changeDirectionX();
@@ -134,7 +134,7 @@ class Obstacle {
 
     reduceDurability() {
         this.durability--;
-        updateSprite();
+        this.updateSprite();
         return this.durability;
     }
   
@@ -177,21 +177,26 @@ function updateObstacles(ball) {
       
       if(ball.leftSide[0] >= obstacleBorderX[0] && ball.leftSide[0] <= obstacleBorderX[1]) {
         if(ball.leftSide[1] >= obstacleBorderY[0] && ball.leftSide[1] <= obstacleBorderY[1]){
+          console.log("LEFT SIDE COLLISION");
           element.reduceDurability();
           ball.changeDirectionX();
         }
       } else if ((ball.rightSide[0] >= obstacleBorderX[0] && ball.rightSide[0] <= obstacleBorderX[1])) {
          if (ball.rightSide[1] >= obstacleBorderY[0] && ball.rightSide[1] <= obstacleBorderY[1]) {
+          console.log("RIGHT SIDE COLLISION");
            element.reduceDurability();
            ball.changeDirectionX();
          }
-      } else if (ball.topSide[1] >= obstacleBorderY[0] && ball.topSide[1] <= obstacleBorderY[1]) {
+      } 
+      if (ball.topSide[1] >= obstacleBorderY[0] && ball.topSide[1] <= obstacleBorderY[1]) {
          if (ball.topSide[0] >= obstacleBorderX[0] && ball.topSide[0] <= obstacleBorderX[1]) {
+             console.log("TOP SIDE COLLISION");
             element.reduceDurability();
             ball.changeDirectionY();
          }
       } else if (ball.bottomSide[1] >= obstacleBorderY[0] && ball.bottomSide[1] <= obstacleBorderY[1]) {
          if (ball.bottomSide[0] >= obstacleBorderX[0] && ball.bottomSide[0] <= obstacleBorderX[1]) {
+             console.log("BOTTOM SIDE COLLISION");
             element.reduceDurability();
             ball.changeDirectionY();
          }
@@ -233,8 +238,8 @@ function startGame() {
             platform.moveLeft();
           break;
         case 38:
-            ball.speedX = 0.15;
-            ball.speedY = 0.15;
+            ball.speedX = 0.25;
+            ball.speedY = 0.25;
           break;
         case 39:
             platform.moveRight();
