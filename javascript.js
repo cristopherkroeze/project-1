@@ -19,10 +19,10 @@ function resetCanvas(callback) {
 class Ball {
     constructor() {
         this.x = 350;
-        this.y = 765;
+        this.y = 764;
         this.radius = 10;
         this.speedX = 0;
-        this.speedY = 0
+        this.speedY = 0;
         this.topSide = [this.x, this.y+this.radius];
         this.leftSide = [this.x-this.radius, this.y];
         this.bottomSide = [this.x, this.y-this.radius];
@@ -31,12 +31,18 @@ class Ball {
 
     changeDirectionX() {
         this.speedX = 0 - this.speedX;
-        // this.x -= (this.speedX*100)
     }
 
     changeDirectionY() {
         this.speedY = 0 - this.speedY;
-        // this.y -= (this.speedY*100)
+    }
+
+    updateSpeedY(speed) {
+      this.speedY = speed;
+    }
+
+    updateSpeedX(speed) {
+      this.speedX = speed;
     }
     
     updatePos() {
@@ -53,8 +59,8 @@ class Ball {
         }
         if (this.y <= 10) {
             this.changeDirectionY();
-        } else if (this.y >= 790) {
-            this.changeDirectionY();
+        } else if (this.y >= 800) {
+            endGame();
         }
         this.draw();
     }
@@ -165,6 +171,61 @@ function createObstacle() {
     obstacles.push(randomObstacle);
   }
 
+function updatePlatform (platform, ball) {
+  let platformBorderX1 = [platform.x, (platform.x+platform.width/5)];
+  let platformBorderY = [platform.y, (platform.y+platform.height)];
+  let platformBorderX2 = [(platform.x+platform.width/5), (platform.x+(platform.width/5)*2)];
+  let platformBorderX3 = [(platform.x+(platform.width/5)*2), (platform.x+(platform.width/5)*3)];
+  let platformBorderX4 = [(platform.x+(platform.width/5)*3), (platform.x+(platform.width/5)*4)];
+  let platformBorderX5 = [(platform.x+(platform.width/5)*4), (platform.x+platform.width)];
+
+
+
+
+  if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
+    if (ball.bottomSide[0] >= platformBorderX1[0] && ball.bottomSide[0] <= platformBorderX1[1]) {
+        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 1");
+        ball.speedX = -0.25;
+        ball.changeDirectionY();
+    }
+  }
+
+  if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
+    if (ball.bottomSide[0] >= platformBorderX2[0] && ball.bottomSide[0] <= platformBorderX2[1]) {
+        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 2");
+        ball.speedX = -0.30;
+        ball.changeDirectionY();
+    }
+  }
+
+  if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
+    if (ball.bottomSide[0] >= platformBorderX3[0] && ball.bottomSide[0] <= platformBorderX3[1]) {
+        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 3");
+        if (ball.speedX < 0) {
+          ball.speedX = -0.15;
+        } else {
+          ball.speedX = 0.15;
+        }
+        ball.changeDirectionY();
+    }
+  }
+
+  if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
+    if (ball.bottomSide[0] >= platformBorderX4[0] && ball.bottomSide[0] <= platformBorderX4[1]) {
+        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 4");
+        ball.speedX = 0.30;
+        ball.changeDirectionY();
+    }
+  }
+
+  if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
+    if (ball.bottomSide[0] >= platformBorderX5[0] && ball.bottomSide[0] <= platformBorderX5[1]) {
+        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 5");
+        ball.speedX = 0.25;
+        ball.changeDirectionY();
+    }
+  }
+}
 
 function updateObstacles(ball) {
 
@@ -177,26 +238,22 @@ function updateObstacles(ball) {
       
       if(ball.leftSide[0] >= obstacleBorderX[0] && ball.leftSide[0] <= obstacleBorderX[1]) {
         if(ball.leftSide[1] >= obstacleBorderY[0] && ball.leftSide[1] <= obstacleBorderY[1]){
-          console.log("LEFT SIDE COLLISION");
           element.reduceDurability();
           ball.changeDirectionX();
         }
       } else if ((ball.rightSide[0] >= obstacleBorderX[0] && ball.rightSide[0] <= obstacleBorderX[1])) {
          if (ball.rightSide[1] >= obstacleBorderY[0] && ball.rightSide[1] <= obstacleBorderY[1]) {
-          console.log("RIGHT SIDE COLLISION");
            element.reduceDurability();
            ball.changeDirectionX();
          }
       } 
       if (ball.topSide[1] >= obstacleBorderY[0] && ball.topSide[1] <= obstacleBorderY[1]) {
          if (ball.topSide[0] >= obstacleBorderX[0] && ball.topSide[0] <= obstacleBorderX[1]) {
-             console.log("TOP SIDE COLLISION");
             element.reduceDurability();
             ball.changeDirectionY();
          }
       } else if (ball.bottomSide[1] >= obstacleBorderY[0] && ball.bottomSide[1] <= obstacleBorderY[1]) {
          if (ball.bottomSide[0] >= obstacleBorderX[0] && ball.bottomSide[0] <= obstacleBorderX[1]) {
-             console.log("BOTTOM SIDE COLLISION");
             element.reduceDurability();
             ball.changeDirectionY();
          }
@@ -206,6 +263,10 @@ function updateObstacles(ball) {
         obstacles.splice(index, 1);
         points++;
       }
+
+      if(!obstacles.length) {
+        victory();
+      }
      
     })
 }
@@ -213,16 +274,15 @@ function updateObstacles(ball) {
 function endGame() {
 
 
-    // clearInterval(updateInterval);
-    // clearInterval(createObstacleInterval);
-    
-    // document.getElementById('game-board').innerHTML = `<p id="game-over">GAME OVER</p><p>Point Total: ${points}</p>`
+    clearInterval(updateInterval);
+    document.getElementById('game-intro').innerHTML = "<p></p>";
+    document.getElementById('game-board').innerHTML = `<p id="game-over">GAME OVER</p><p>Point Total: ${points}</p>`
   }
   
   function victory() {
-    // clearInterval(updateInterval);
-    // clearInterval(createObstacleInterval);
-    // document.getElementById('game-board').innerHTML = `<p id="win-condition">VICTORY!</p><p>Point Total: ${points}</p>`
+    clearInterval(updateInterval);
+    document.getElementById('game-intro').innerHTML = "<p></p>";
+    document.getElementById('game-board').innerHTML = `<p id="win-condition">VICTORY!</p><p>Point Total: ${points}</p>`
   }
 
 function startGame() {
@@ -238,8 +298,8 @@ function startGame() {
             platform.moveLeft();
           break;
         case 38:
-            ball.speedX = 0.25;
-            ball.speedY = 0.25;
+            ball.speedX = 0.30;
+            ball.speedY = 0.30;
           break;
         case 39:
             platform.moveRight();
@@ -250,12 +310,15 @@ function startGame() {
   
     generateObstacles();
 
+///Why is the ball speed dependent on the number of objects in the array?
+
     // update canvas
     window.updateInterval = setInterval(() => {
       resetCanvas();
       platform.draw();
       ball.draw();
       updateObstacles(ball);
+      updatePlatform(platform, ball);
       ctx.font = "30px Arial";
       ctx.fillStyle = "black";
       ctx.fillText(`Points: ${points}`, 10, 50);
