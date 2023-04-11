@@ -154,7 +154,7 @@ class Obstacle {
 
   function generateObstacles() {
     let i = 0;
-    while (i<15) {
+    while (i<3) {
         createObstacle();
         i++;
     }
