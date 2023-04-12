@@ -44,6 +44,10 @@ class Ball {
     updateSpeedX(speed) {
       this.speedX = speed;
     }
+
+    resize() {
+      this.radius = 10;
+    }
     
     updatePos() {
         this.x -= this.speedX;
@@ -52,12 +56,12 @@ class Ball {
         this.leftSide = [this.x-this.radius, this.y];
         this.bottomSide = [this.x, this.y+this.radius];
         this.rightSide = [this.x+this.radius, this.y];
-        if (this.x <= 10) {
+        if (this.x-this.radius <= 0) {
             this.changeDirectionX();
-        } else if (this.x >=790) {
+        } else if (this.x+this.radius >=800) {
             this.changeDirectionX();
         }
-        if (this.y <= 10) {
+        if (this.y-this.radius <= 0) {
             this.changeDirectionY();
         } else if (this.y >= 800) {
             endGame();
@@ -102,17 +106,22 @@ class Platform {
       ctx.fillStyle = "black";
       ctx.fill();
     }
+
+    resize() {
+      this.width = 100;
+    }
   
   }
 
 class Obstacle {
 
-    constructor(x, y, durability) {
+    constructor(x, y, durability, powerup) {
       this.width = 48;
       this.height = 48;
       this.x = x;
       this.y = y;
       this.durability = durability;
+      this.containsPowerUp = powerup;
 
       const img = new Image();
       if (durability === 1) {
@@ -154,7 +163,7 @@ class Obstacle {
 
   function generateObstacles() {
     let i = 0;
-    while (i<3) {
+    while (i<15) {
         createObstacle();
         i++;
     }
@@ -167,7 +176,15 @@ function createObstacle() {
         randomY = 55;
     };
     let randomDurability = Math.floor(Math.random() * 3) + 1;
-    const randomObstacle = new Obstacle(randomX, randomY, randomDurability);
+    let randomPowerUp = Math.floor(Math.random()*11);
+    let powerUp;
+    if (randomPowerUp <= 2) {
+      console.log("random block received powerup");
+      powerUp = true;
+    } else {
+      powerUp = false;
+    };
+    const randomObstacle = new Obstacle(randomX, randomY, randomDurability, powerUp);
     obstacles.push(randomObstacle);
   }
 
@@ -184,27 +201,24 @@ function updatePlatform (platform, ball) {
 
   if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
     if (ball.bottomSide[0] >= platformBorderX1[0] && ball.bottomSide[0] <= platformBorderX1[1]) {
-        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 1");
-        ball.speedX = -0.25;
+        ball.speedX = -2.5;
         ball.changeDirectionY();
     }
   }
 
   if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
     if (ball.bottomSide[0] >= platformBorderX2[0] && ball.bottomSide[0] <= platformBorderX2[1]) {
-        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 2");
-        ball.speedX = -0.30;
+        ball.speedX = -3;
         ball.changeDirectionY();
     }
   }
 
   if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
     if (ball.bottomSide[0] >= platformBorderX3[0] && ball.bottomSide[0] <= platformBorderX3[1]) {
-        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 3");
         if (ball.speedX < 0) {
-          ball.speedX = -0.15;
+          ball.speedX = -1.5;
         } else {
-          ball.speedX = 0.15;
+          ball.speedX = 1.5;
         }
         ball.changeDirectionY();
     }
@@ -212,26 +226,31 @@ function updatePlatform (platform, ball) {
 
   if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
     if (ball.bottomSide[0] >= platformBorderX4[0] && ball.bottomSide[0] <= platformBorderX4[1]) {
-        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 4");
-        ball.speedX = 0.30;
+        ball.speedX = 3;
         ball.changeDirectionY();
     }
   }
 
   if (ball.bottomSide[1] >= platformBorderY[0] && ball.bottomSide[1] <= platformBorderY[1]) {
     if (ball.bottomSide[0] >= platformBorderX5[0] && ball.bottomSide[0] <= platformBorderX5[1]) {
-        console.log("BOTTOM SIDE PLATFORM COLLISION ZONE 5");
-        ball.speedX = 0.25;
+        ball.speedX = 2.5;
         ball.changeDirectionY();
     }
   }
 }
 
-function updateObstacles(ball) {
+function resizePlatform(platform) {
+  platform.width = 100;
+}
+
+function resizeBall(ball) {
+  ball.radius = 10;
+}
+
+function updateObstacles(ball, platform) {
 
   
     obstacles.forEach((element, index) => {
-      ball.updatePos();
       element.updateSprite();
       let obstacleBorderX = [element.x, (element.x+element.width)];
       let obstacleBorderY = [element.y, (element.y+element.height)];
@@ -262,6 +281,35 @@ function updateObstacles(ball) {
       if(element.durability <= 0) {
         obstacles.splice(index, 1);
         points++;
+        if (element.containsPowerUp) {
+          randomPower = Math.floor(Math.random()*3);
+          if (randomPower === 0) {
+              console.log("doubling ball radius for 5 seconds");
+              ball.radius = ball.radius * 2;
+              ball.updatePos();
+              ball.draw();
+              setTimeout(()=> {ball.radius = 10}, 5000);
+          } else if (randomPower === 1) {
+              console.log("doubling platform width for 5 seconds");
+              platform.width = platform.width * 2;
+              platform.draw();
+              setTimeout(() => {platform.width = 100}, 5000);
+          } else if (randomPower === 2) {
+              console.log("removing obstacles");
+              if(obstacles.length >= 6) {
+                console.log("removing 3 obstacles");
+                obstacles.splice(0, 3);
+              } else if (obstacles.length >= 4) {
+                console.log("removing 2 obstacles");
+                obstacles.splice(0,2);
+              } else if (obstacles.length >= 2) {
+                console.log("removing 1 obstacles");
+                obstacles.splice(0,1);
+              } else if (!obstacles.length) {
+                victory();
+              }
+          };
+        };
       }
 
       if(!obstacles.length) {
@@ -286,9 +334,10 @@ function endGame() {
   }
 
 function startGame() {
-
+    let upPressed = false;
     if (gameStarted === false) {
     gameStarted = true;
+    
     const platform = new Platform();
     const ball = new Ball();
     // register platform controls
@@ -298,8 +347,11 @@ function startGame() {
             platform.moveLeft();
           break;
         case 38:
-            ball.speedX = 0.30;
-            ball.speedY = 0.30;
+            if (!upPressed) {
+            ball.speedX = 3;
+            ball.speedY = 3;
+            upPressed = true;
+            }
           break;
         case 39:
             platform.moveRight();
@@ -316,8 +368,9 @@ function startGame() {
     window.updateInterval = setInterval(() => {
       resetCanvas();
       platform.draw();
+      ball.updatePos();
       ball.draw();
-      updateObstacles(ball);
+      updateObstacles(ball, platform);
       updatePlatform(platform, ball);
       ctx.font = "30px Arial";
       ctx.fillStyle = "black";
