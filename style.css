@@ -1,16 +1,22 @@
 body {
     padding: 0;
     text-align: center;
+    background-color: black;
   }
-  
+
+  h1 {
+    color: green;
+  }
+
   #game-intro {
     float: left;
     padding: 0% 10%;
   }
   
-  #game-intro p {
+  #game-intro {
     font-size: 18px;
-    font-family: "Verdana"
+    font-family: "Verdana";
+    color: red;
   }
   
   .logo-img {
@@ -22,7 +28,17 @@ body {
     color: red;
   }
   
+  #point-total-game-over{
+    font-size: 70px;
+    color: red;
+  }
+  
   #win-condition {
+    font-size: 70px;
+    color: green;
+  }
+
+  #point-total-win-condition{
     font-size: 70px;
     color: green;
   }

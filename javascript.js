@@ -1,9 +1,11 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const obstacles = [];
+let obstacles = [];
 let gameStarted = false;
 let points = 0;
-
+let resetGame = false;
+let platform;
+let ball;
 
 function resetCanvas(callback) {
     ctx.clearRect(0, 0, 800, 800); 
@@ -284,16 +286,16 @@ function updateObstacles(ball, platform) {
         if (element.containsPowerUp) {
           randomPower = Math.floor(Math.random()*3);
           if (randomPower === 0) {
-              console.log("doubling ball radius for 5 seconds");
+              console.log("doubling ball radius for 8 seconds");
               ball.radius = ball.radius * 2;
               ball.updatePos();
               ball.draw();
-              setTimeout(()=> {ball.radius = 10}, 5000);
+              setTimeout(()=> {ball.radius = 10}, 8000);
           } else if (randomPower === 1) {
-              console.log("doubling platform width for 5 seconds");
+              console.log("doubling platform width for 8 seconds");
               platform.width = platform.width * 2;
               platform.draw();
-              setTimeout(() => {platform.width = 100}, 5000);
+              setTimeout(() => {platform.width = 100}, 8000);
           } else if (randomPower === 2) {
               console.log("removing obstacles");
               if(obstacles.length >= 6) {
@@ -324,22 +326,34 @@ function endGame() {
 
     clearInterval(updateInterval);
     document.getElementById('game-intro').innerHTML = "<p></p>";
-    document.getElementById('game-board').innerHTML = `<p id="game-over">GAME OVER</p><p>Point Total: ${points}</p>`
+    document.getElementById('game-board').innerHTML = `<p id="game-over">GAME OVER</p><p id = "point-total-game-over">Point Total: ${points}</p>`
   }
   
   function victory() {
     clearInterval(updateInterval);
     document.getElementById('game-intro').innerHTML = "<p></p>";
-    document.getElementById('game-board').innerHTML = `<p id="win-condition">VICTORY!</p><p>Point Total: ${points}</p>`
+    document.getElementById('game-board').innerHTML = `<p id="win-condition">VICTORY!</p><p id = "point-total-win-condition">Point Total: ${points}</p>`
   }
+
+function restartGame() {
+  clearInterval(window.updateInterval);
+  points = 0;
+  ball = null;
+  platform = null;
+  obstacles = [];
+  upPressed = false;
+  resetCanvas();
+  gameStarted = false;
+  startGame();
+}
 
 function startGame() {
     let upPressed = false;
     if (gameStarted === false) {
     gameStarted = true;
     
-    const platform = new Platform();
-    const ball = new Ball();
+    platform = new Platform();
+    ball = new Ball();
     // register platform controls
     document.onkeydown = function(e) {
       switch (e.keyCode) {
@@ -362,26 +376,32 @@ function startGame() {
   
     generateObstacles();
 
-///Why is the ball speed dependent on the number of objects in the array?
 
-    // update canvas
-    window.updateInterval = setInterval(() => {
-      resetCanvas();
-      platform.draw();
-      ball.updatePos();
-      ball.draw();
-      updateObstacles(ball, platform);
-      updatePlatform(platform, ball);
-      ctx.font = "30px Arial";
-      ctx.fillStyle = "black";
-      ctx.fillText(`Points: ${points}`, 10, 50);
-    }, 16);
+    animate();
+    
   }
   
   }
 
+function animate() {
+  window.updateInterval = setInterval(() => {
+    resetCanvas();
+    platform.draw();
+    ball.updatePos();
+    ball.draw();
+    updateObstacles(ball, platform);
+    updatePlatform(platform, ball);
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText(`Points: ${points}`, 10, 50);
+  }, 16);
+}
+
 window.onload = () => {
     document.getElementById('start-button').onclick = () => {
       startGame();
+    };
+    document.getElementById('reset-button').onclick = () => {
+      restartGame();
     };
 };
